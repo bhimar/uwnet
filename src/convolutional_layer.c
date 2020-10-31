@@ -46,21 +46,40 @@ matrix backward_convolutional_bias(matrix dy, int n)
 // int size: kernel size for convolution operation
 // int stride: stride for convolution
 // returns: column matrix
-matrix im2col(image im, int size, int stride)
-{
+matrix im2col(image im, int size, int stride) {
     int i, j, k;
     int outw = (im.w-1)/stride + 1;
     int outh = (im.h-1)/stride + 1;
     int rows = im.c*size*size;
     int cols = outw * outh;
-    matrix col = make_matrix(rows, cols);
+    matrix out = make_matrix(rows, cols);
 
     // TODO: 5.1
+
+    // run filter over image
+
     // Fill in the column matrix with patches from the image
+    for (k = 0; k < im.c; k++) {
+        int filter_num = 0;
+        for (i = 0; i < im.h; i += stride) {
+            for (j = 0; j < im.w; j += stride) {
+                int row = k * size * size;
+                for (int m = i - (size / 2) + (1 - (size % 2)); m <= i + (size / 2); m++) {
+                    for (int n = j - (size / 2) + (1 - (size % 2)); n <= j + (size / 2); n++) {
+                        if (m >= 0 && n >= 0 && m < im.h && n < im.w) {
+                            int input_idx = k * im.w * im.h + m * im.w + n;
+                            int output_idx = row * cols + filter_num;
+                            out.data[output_idx] = im.data[input_idx];
+                        }
+                        row++;
+                    }
+                }
+                filter_num++;
+            }
+        }
+    }
 
-
-
-    return col;
+    return out;
 }
 
 // The reverse of im2col, add elements back into image
@@ -74,13 +93,31 @@ image col2im(int width, int height, int channels, matrix col, int size, int stri
 
     image im = make_image(width, height, channels);
     int outw = (im.w-1)/stride + 1;
-    int rows = im.c*size*size;
+    int outh = (im.h-1)/stride + 1;
+    int cols = outw * outh;
 
     // TODO: 5.2
     // Add values into image im from the column matrix
+    for (k = 0; k < im.c; k++) {
+        int filter_num = 0;
+        for (i = 0; i < im.h; i += stride) {
+            for (j = 0; j < im.w; j += stride) {
+                int row = k * size * size;
+                for (int m = i - (size / 2) + (1 - (size % 2)); m <= i + (size / 2); m++) {
+                    for (int n = j - (size / 2) + (1 - (size % 2)); n <= j + (size / 2); n++) {
+                        if (m >= 0 && n >= 0 && m < im.h && n < im.w) {
+                            int input_idx = k * im.w * im.h + m * im.w + n;
+                            int output_idx = row * cols + filter_num;
+                            im.data[input_idx] += col.data[output_idx];
+                        }
+                        row++;
+                    }
+                }
+                filter_num++;
+            }
+        }
+    }
     
-
-
     return im;
 }
 
@@ -171,9 +208,15 @@ matrix backward_convolutional_layer(layer l, matrix dy)
 // float rate: learning rate
 // float momentum: momentum term
 // float decay: l2 regularization term
-void update_convolutional_layer(layer l, float rate, float momentum, float decay)
-{
+void update_convolutional_layer(layer l, float rate, float momentum, float decay) {
     // TODO: 5.3
+    axpy_matrix(decay, l.w, l.dw);
+    axpy_matrix(-rate, l.dw, l.w);
+    scal_matrix(momentum, l.dw);
+
+    // Do the same for biases as well but no need to use weight decay on biases
+    axpy_matrix(-rate, l.db, l.b);
+    scal_matrix(momentum, l.db);
 }
 
 // Make a new convolutional layer
