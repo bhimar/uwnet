@@ -1,3 +1,10 @@
+# We calculate the number of operations from the matrix multiplication in each convolutional layer. The activation layer and maxpool layers
+# do not have matrix multiplication operations that we need to consider. Then we made a connected neural network with the same number of
+# matrix multiplication operations.
+
+# The accuracies for the conv_net were train: 0.700, test: 0.658
+
+
 from uwnet import *
 
 def conv_net():
@@ -17,7 +24,7 @@ def conv_net():
             make_activation_layer(SOFTMAX)]
     return make_net(l)
 
-def conv_net2():
+def connected_net():
     l = [   make_connected_layer(3072, 72),
             make_activation_layer(RELU),
             make_connected_layer(72, 512),
@@ -43,7 +50,7 @@ rate = .01
 momentum = .9
 decay = .005
 
-m = conv_net()
+m = connected_net()
 print("training...")
 train_image_classifier(m, train, batch, iters, rate, momentum, decay)
 print("done")
