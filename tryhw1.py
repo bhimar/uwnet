@@ -1,10 +1,3 @@
-# We calculate the number of operations from the matrix multiplication in each convolutional layer. The activation layer and maxpool layers
-# do not have matrix multiplication operations that we need to consider. Then we made a connected neural network with the same number of
-# matrix multiplication operations.
-
-# The accuracies for the conv_net were train: 0.700, test: 0.658
-
-
 from uwnet import *
 
 def conv_net():
@@ -64,4 +57,20 @@ print("test accuracy:     %f", accuracy_net(m, test))
 # Why are you seeing these results? Speculate based on the information you've gathered and what you know about DL and ML.
 # Your answer:
 #
+# We calculated the number of operations from the matrix multiplication in each convolutional layer. The activation layer and maxpool layers
+# do not have matrix multiplication operations that we need to consider. Then we made a connected neural network with the same number of
+# matrix multiplication operations.
+
+# The accuracies for the conv_net were train: 0.700, test: 0.658
+# The accuracies for the connected_net were train: 0.585, test: 0.515
+
+# In this example, we see that the convolutional network performs much better than the fully connected network
+# even though they have the same number of operations. We think the reason for this is that the fully connected
+# network does not take any spatial information into consideration. For instance, if we rearranged every image,
+# we would probably get similar performance because every pixel is being connected. The convolutional network
+# uses filters to evaluate pixels relative to their neighbors, so it is able to capture spatial information, making it
+# much better for image data sets like cifar. Also the addition of maxpool layers can help make the convolutional
+# network better at generalizing. This is because the pooling layers downsample the feature maps and contain a summary
+# of the features, rather than tracking lots of specific features that are dependent on the input. By doing this, we
+# can decrease the variance of the network.
 
