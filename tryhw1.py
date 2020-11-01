@@ -1,19 +1,32 @@
 from uwnet import *
 
 def conv_net():
-    l = [   make_convolutional_layer(32, 32, 3, 8, 3, 1),
+    l = [   make_convolutional_layer(32, 32, 3, 8, 3, 1), # 8 x 27 x 1024 = 221184
             make_activation_layer(RELU),
             make_maxpool_layer(32, 32, 8, 3, 2),
-            make_convolutional_layer(16, 16, 8, 16, 3, 1),
+            make_convolutional_layer(16, 16, 8, 16, 3, 1), # 16 x 72 x 256 = 294912
             make_activation_layer(RELU),
             make_maxpool_layer(16, 16, 16, 3, 2),
-            make_convolutional_layer(8, 8, 16, 32, 3, 1),
+            make_convolutional_layer(8, 8, 16, 32, 3, 1), # 32 x 144 x 64 = 294912
             make_activation_layer(RELU),
             make_maxpool_layer(8, 8, 32, 3, 2),
-            make_convolutional_layer(4, 4, 32, 64, 3, 1),
+            make_convolutional_layer(4, 4, 32, 64, 3, 1), # 64 x 288 x 16 = 294912
             make_activation_layer(RELU),
             make_maxpool_layer(4, 4, 64, 3, 2),
-            make_connected_layer(256, 10),
+            make_connected_layer(256, 10), # 1 x 256 x 10 = 2560
+            make_activation_layer(SOFTMAX)]
+    return make_net(l)
+
+def conv_net2():
+    l = [   make_connected_layer(3072, 72),
+            make_activation_layer(RELU),
+            make_connected_layer(72, 512),
+            make_activation_layer(RELU),
+            make_connected_layer(512, 1104),
+            make_activation_layer(RELU),
+            make_connected_layer(1104, 256),
+            make_activation_layer(RELU),
+            make_connected_layer(256, 10), # 1 x 256 x 10 = 2560
             make_activation_layer(SOFTMAX)]
     return make_net(l)
 
